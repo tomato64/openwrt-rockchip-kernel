@@ -1,0 +1,48 @@
+#!/bin/bash
+
+KERNEL=6.6.110
+BRANCH=v24.10.4
+
+rm -rf linux*
+rm -rf openwrt
+rm -f 00001-openwrt-rockchip-kernel*
+
+git clone https://github.com/openwrt/openwrt.git
+cd openwrt
+git checkout $BRANCH
+cd ..
+
+wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-$KERNEL.tar.xz
+tar xvJf linux-$KERNEL.tar.xz
+cd linux-$KERNEL
+git init
+git add .
+git commit -m "init"
+
+# Copy generic files (no rockchip-specific files directory exists)
+cp -fpR "../openwrt/target/linux/generic/files"/. \
+	.
+
+# Apply generic patches in order
+for patch in ../openwrt/target/linux/generic/backport-6.6/*.patch; do
+	patch -p1 < "$patch"
+done
+
+for patch in ../openwrt/target/linux/generic/pending-6.6/*.patch; do
+	patch -p1 < "$patch"
+done
+
+for patch in ../openwrt/target/linux/generic/hack-6.6/*.patch; do
+	patch -p1 < "$patch"
+done
+
+# Apply rockchip-specific patches
+for patch in ../openwrt/target/linux/rockchip/patches-6.6/*.patch; do
+	patch -p1 < "$patch"
+done
+
+git add .
+git commit -m "openwrt rockchip kernel $KERNEL"
+git format-patch HEAD~1
+mv 0001-openwrt-rockchip-kernel-$KERNEL.patch \
+   ../00001-openwrt-rockchip-kernel-$KERNEL.patch
