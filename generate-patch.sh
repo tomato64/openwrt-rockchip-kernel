@@ -1,7 +1,7 @@
 #!/bin/bash
 
-KERNEL=6.6.110
-BRANCH=v24.10.4
+KERNEL=6.12.63
+BRANCH=v25.12.0-rc2
 
 rm -rf linux*
 rm -rf openwrt
@@ -24,20 +24,20 @@ cp -fpR "../openwrt/target/linux/generic/files"/. \
 	.
 
 # Apply generic patches in order
-for patch in ../openwrt/target/linux/generic/backport-6.6/*.patch; do
+for patch in ../openwrt/target/linux/generic/backport-6.12/*.patch; do
 	patch -p1 < "$patch"
 done
 
-for patch in ../openwrt/target/linux/generic/pending-6.6/*.patch; do
+for patch in ../openwrt/target/linux/generic/pending-6.12/*.patch; do
 	patch -p1 < "$patch"
 done
 
-for patch in ../openwrt/target/linux/generic/hack-6.6/*.patch; do
+for patch in ../openwrt/target/linux/generic/hack-6.12/*.patch; do
 	patch -p1 < "$patch"
 done
 
 # Apply rockchip-specific patches
-for patch in ../openwrt/target/linux/rockchip/patches-6.6/*.patch; do
+for patch in ../openwrt/target/linux/rockchip/patches-6.12/*.patch; do
 	patch -p1 < "$patch"
 done
 
